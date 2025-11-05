@@ -1459,7 +1459,8 @@ const changeScreenMode = (type, isInit) => {
   // 储存最后模式
   window.localStorage.setItem('screenMode', type);
 };
-const pullPath = ref('');
+const _pullPath = window.localStorage.getItem('pullPath');
+const pullPath = ref(_pullPath || '/sdcard/Pictures/');
 const pullLoading = ref(false);
 const pullResult = ref('');
 const onPullPathBlur = () => {
@@ -1474,10 +1475,12 @@ const pullFile = () => {
       path: pullPath.value,
     })
   );
+  window.localStorage.setItem('pullPath', pullPath.value);
 };
 const fileLoading = ref(false);
 const upLoadFilePath = ref('');
-const pushPath = ref('');
+const _pushPath = window.localStorage.getItem('pushPath');
+const pushPath = ref(_pushPath || '/sdcard/Pictures/');
 const pushLoading = ref(false);
 const onPushPathBlur = () => {
   pushPath.value = pushPath.value.trim();
@@ -1492,6 +1495,7 @@ const pushFile = () => {
       path: pushPath.value,
     })
   );
+  window.localStorage.setItem('pushPath', pushPath.value);
 };
 const uploadFile = (content) => {
   fileLoading.value = true;
