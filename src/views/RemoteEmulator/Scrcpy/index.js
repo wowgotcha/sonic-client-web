@@ -91,6 +91,8 @@ class Scrcpy {
             detail: this.excuteMode.toLowerCase(),
           })
         );
+        const { onopen } = props;
+        onopen && onopen(e);
       });
     }
   }

@@ -127,7 +127,7 @@ let time = 0;
 let isLongPress = false;
 let mouseMoveTime = 0;
 let touchWrapper = null;
-const pic = ref('高');
+const pic = ref($t('androidRemoteTS.low'));
 const _screenMode = window.localStorage.getItem('screenMode');
 const screenMode = ref(_screenMode || 'Scrcpy'); // Scrcpy,Minicap
 const elementLoading = ref(false);
@@ -513,6 +513,9 @@ const openSocket = (host, port, key, udId) => {
       )}`,
       node: 'scrcpy-video',
       onmessage: screenWebsocketOnmessage,
+      onopen: (e) => {
+        changePic(pic.value);
+      },
       excuteMode: screenMode.value,
     });
     screenWebsocket = __Scrcpy.websocket;
@@ -528,9 +531,11 @@ const openSocket = (host, port, key, udId) => {
   }
   websocket.onmessage = websocketOnmessage;
   websocket.onclose = (e) => {};
+  websocket.onopen = (event) => {
+  };
   terminalWebsocket.onmessage = terminalWebsocketOnmessage;
   terminalWebsocket.onclose = (e) => {};
-  driverLoading.value = true;
+  // driverLoading.value = true; // don't opend driver when open socket
 };
 const sendLogcat = () => {
   terminalWebsocket.send(
@@ -1457,6 +1462,9 @@ const changeScreenMode = (type, isInit) => {
 const pullPath = ref('');
 const pullLoading = ref(false);
 const pullResult = ref('');
+const onPullPathBlur = () => {
+  pullPath.value = pullPath.value.trim();
+};
 const pullFile = () => {
   pullResult.value = '';
   pullLoading.value = true;
@@ -1471,8 +1479,12 @@ const fileLoading = ref(false);
 const upLoadFilePath = ref('');
 const pushPath = ref('');
 const pushLoading = ref(false);
+const onPushPathBlur = () => {
+  pushPath.value = pushPath.value.trim();
+};
 const pushFile = () => {
   pushLoading.value = true;
+  pushPath.value = pushPath.value.trim();
   websocket.send(
     JSON.stringify({
       type: 'pushFile',
@@ -2683,6 +2695,7 @@ const checkAlive = () => {
                             :placeholder="
                               $t('androidRemoteTS.code.pleaseFilePath')
                             "
+                            @blur="onPushPathBlur"
                           ></el-input>
                           <el-button
                             style="margin-left: 5px"
@@ -2703,6 +2716,7 @@ const checkAlive = () => {
                           v-model="pullPath"
                           size="mini"
                           :placeholder="$t('androidRemoteTS.code.pullFilePath')"
+                          @blur="onPullPathBlur"
                         ></el-input>
                         <el-button
                           style="margin-top: 5px"
