@@ -1,9 +1,9 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import { $hiveHttp as axios } from '../http/axios';
+import { default as sonicAxios, $hiveHttp as axios } from '../http/axios';
 import Pageable from '../components/Pageable.vue';
 
 const { t: $t } = useI18n();
@@ -81,6 +81,35 @@ const searchForm = ref({
 });
 const taskDataDialog = ref(false);
 const currentTaskData = ref({});
+
+// Function to fetch device UDID when device_label loses focus
+const fetchDeviceUDID = (label) => {
+  if (label) {
+    // Call API to get device UDID
+    sonicAxios
+      .get('/controller/devices/list', {
+        params: {
+          deviceInfo: label,
+          page: 1,
+          pageSize: 1,
+        },
+      })
+      .then((resp) => {
+        if (
+          resp.code === 2000 &&
+          resp.data &&
+          resp.data.content &&
+          resp.data.content.length > 0
+        ) {
+          // Set device_id to the first device's UDID
+          taskForm.value.device_id = resp.data.content[0].udId || '';
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch device UDID:', error);
+      });
+  }
+};
 
 // Function to show task data in a dialog
 const showTaskData = (data) => {
@@ -362,6 +391,7 @@ onMounted(() => {
         <el-input
           v-model="taskForm.device_label"
           placeholder="Enter device label"
+          @blur="fetchDeviceUDID(taskForm.device_label)"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -628,7 +658,7 @@ onMounted(() => {
           size="mini"
           @click="showTaskData(scope.row.task_data)"
         >
-          View Data
+          {{ scope.row.task_data?.account_name || 'View Data' }}
         </el-button>
         <span v-else>N/A</span>
       </template>
@@ -700,7 +730,7 @@ onMounted(() => {
           icon="el-icon-warning"
           icon-color="red"
           @click="deleteTask(scope.row.id)"
-        >{{ $t('common.delete') }}
+          >{{ $t('common.delete') }}
         </el-button>
       </template>
     </el-table-column>
