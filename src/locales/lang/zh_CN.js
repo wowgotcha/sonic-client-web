@@ -1646,6 +1646,7 @@ const hiveTasks = {
   taskId: '任务id',
   taskName: '任务名称',
   deviceId: '设备序列号',
+  deviceLabel: '设备昵称',
   taskData: '任务数据',
   status: '状态',
   result: '错误信息',
@@ -1661,6 +1662,8 @@ const hiveTasks = {
   account_name: '抖音号',
   video_path: '视频链接',
   description: '视频描述',
+  publishVideo: '发布视频',
+  unknown: '未知任务',
 };
 export default {
   message: {

@@ -101,7 +101,7 @@ $http.interceptors.response.use(
 // Create a separate axios instance for Hive API
 let hiveBaseURL = '';
 if (process.env.VUE_APP_HIVE_API_BASE_URL) {
-  hiveBaseURL = env.VUE_APP_HIVE_API_BASE_URL;
+  hiveBaseURL = process.env.VUE_APP_HIVE_API_BASE_URL;
 } else {
   hiveBaseURL = '/api/v1';
 }
