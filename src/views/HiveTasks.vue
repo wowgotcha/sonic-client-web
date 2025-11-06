@@ -32,6 +32,13 @@ const statusTagType = (status) => {
 const statusLabel = (status) => {
   return STATUS_MAP[status] || 'Unknown';
 };
+const TASK_NAME_MAP = {
+  'publish_video': $t('hiveTasks.publishVideo'),
+  'unknown': $t('hiveTasks.unknown'),
+};
+const taskNameLabel = (v) => {
+  return TASK_NAME_MAP[v] || 'Unknown';
+};
 
 const formatTimestamp = (timestamp) => {
   if (!timestamp) return '-';
@@ -424,8 +431,12 @@ onMounted(() => {
           placeholder="Select task name"
           style="width: 100%"
         >
-          <el-option label="Publish Video" value="publish_video"></el-option>
-          <el-option label="Unknown" value="unknown"></el-option>
+          <el-option
+            v-for="(value, index) in TASK_NAME_MAP"
+            :key="index"
+            :label="value"
+            :value="index"
+          />
         </el-select>
       </el-form-item>
       <el-form-item
@@ -560,8 +571,12 @@ onMounted(() => {
         style="width: 150px"
         clearable
       >
-        <el-option label="Publish Video" value="publish_video"></el-option>
-        <el-option label="Unknown" value="unknown"></el-option>
+        <el-option
+          v-for="(value, index) in TASK_NAME_MAP"
+          :key="index"
+          :label="value"
+          :value="index"
+        />
       </el-select>
     </el-form-item>
     <el-form-item :label="$t('hiveTasks.status')">
@@ -652,7 +667,11 @@ onMounted(() => {
       width="150"
       align="center"
       prop="task_name"
-    ></el-table-column>
+    >
+      <template #default="{ row }">
+        {{ taskNameLabel(row.task_name) }}
+      </template>
+    </el-table-column>
     <el-table-column
       :label="$t('hiveTasks.taskData')"
       width="120"
