@@ -693,21 +693,15 @@ onMounted(() => {
           @click="openTaskDialog(scope.row.id)"
           >{{ $t('common.edit') }}
         </el-button>
-        <el-popconfirm
+        <el-button
           style="margin-left: 10px"
-          :confirm-button-text="$t('form.confirm')"
-          :cancel-button-text="$t('form.cancel')"
+          type="danger"
+          size="mini"
           icon="el-icon-warning"
           icon-color="red"
-          :title="$t('hiveTasks.del')"
-          @confirm="deleteTask(scope.row.id)"
-        >
-          <template #reference>
-            <el-button type="danger" size="mini"
-              >{{ $t('common.delete') }}
-            </el-button>
-          </template>
-        </el-popconfirm>
+          @click="deleteTask(scope.row.id)"
+        >{{ $t('common.delete') }}
+        </el-button>
       </template>
     </el-table-column>
   </el-table>
