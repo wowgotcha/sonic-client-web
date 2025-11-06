@@ -1641,9 +1641,8 @@ const stepDetail = {
   wait: '等待',
   WebviewName: 'webview名称',
 };
-const hiveTasksTS = {
-  dialogVisible: {
-  },
+const hiveTasks = {
+  dialogVisible: {},
   taskId: '任务id',
   taskName: '任务名称',
   deviceId: '设备序列号',
@@ -1658,7 +1657,7 @@ const hiveTasksTS = {
   running: '运行中',
   finished: '已完成',
   failed: '失败',
-}
+};
 export default {
   message: {
     robot,
@@ -1704,6 +1703,6 @@ export default {
     suite,
     element,
     stepDetail,
-    hiveTasksTS,
+    hiveTasks,
   },
 };

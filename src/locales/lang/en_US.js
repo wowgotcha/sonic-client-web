@@ -1673,6 +1673,7 @@ const stepDetail = {
   wait: 'Wait',
   WebviewName: 'Webview Name',
 };
+const hiveTasks = {};
 export default {
   message: {
     robot,
@@ -1718,5 +1719,6 @@ export default {
     suite,
     element,
     stepDetail,
+    hiveTasks,
   },
 };

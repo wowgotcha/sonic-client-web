@@ -10,11 +10,28 @@ const { t: $t } = useI18n();
 
 const route = useRoute();
 const STATUS_MAP = {
-  0: $t('hiveTasksTs.notStarted'),
-  1: $t('hiveTasksTs.running'),
-  2: $t('hiveTasksTs.finished'),
-  3: $t('hiveTasksTs.failed'),
-}
+  0: $t('hiveTasks.notStarted'),
+  1: $t('hiveTasks.running'),
+  2: $t('hiveTasks.finished'),
+  3: $t('hiveTasks.failed'),
+};
+const statusTagType = (status) => {
+  switch (status) {
+    case 0:
+      return 'info';
+    case 1:
+      return 'warning';
+    case 2:
+      return 'success';
+    case 3:
+      return 'danger';
+    default:
+      return 'info';
+  }
+};
+const statusLabel = (status) => {
+  return STATUS_MAP[status] || 'Unknown';
+};
 const dialogVisible = ref(false);
 const pageData = ref({});
 const pageSize = ref(15);
@@ -278,7 +295,11 @@ onMounted(() => {
 
 <template>
   <!-- Task Data Dialog -->
-  <el-dialog v-model="taskDataDialog" :title="$t('hiveTasksTS.taskData')" width="600px">
+  <el-dialog
+    v-model="taskDataDialog"
+    :title="$t('hiveTasks.taskData')"
+    width="600px"
+  >
     <pre>{{ JSON.stringify(currentTaskData, null, 2) }}</pre>
   </el-dialog>
 
@@ -311,7 +332,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         prop="task_name"
-        :label="$t('hiveTasksTs.dialogVisible.task_name')"
+        :label="$t('hiveTasks.task_name')"
         :rules="{
           required: true,
           message: $t('jobsTS.dialogVisible.nameIsNull'),
@@ -342,11 +363,16 @@ onMounted(() => {
         ></el-input>
       </el-form-item>
       <el-form-item prop="status" :label="$t('agent.status.name')">
-        <el-select v-model="taskForm.status" placeholder="Select status">
-          <el-option label="Not Started" :value="0"></el-option>
-          <el-option label="Running" :value="1"></el-option>
-          <el-option label="Finished" :value="2"></el-option>
-          <el-option label="Failed" :value="3"></el-option>
+        <el-select
+          v-model="taskForm.status"
+          :placeholder="$t('hiveTasks.status')"
+        >
+          <el-option
+            v-for="(value, index) in STATUS_MAP"
+            :key="index"
+            :label="value"
+            :value="index"
+          />
         </el-select>
       </el-form-item>
       <!-- Task Data Fields -->
@@ -407,24 +433,24 @@ onMounted(() => {
     class="demo-form-inline"
     style="margin-top: 20px"
   >
-    <el-form-item :label="$t('hiveTasksTS.taskId')">
+    <el-form-item :label="$t('hiveTasks.taskId')">
       <el-input
         v-model="searchForm.id"
-        :placeholder="$t('hiveTasksTS.taskId')"
+        :placeholder="$t('hiveTasks.taskId')"
         style="width: 120px"
       ></el-input>
     </el-form-item>
-    <el-form-item :label="$t('hiveTasksTS.deviceId')">
+    <el-form-item :label="$t('hiveTasks.deviceId')">
       <el-input
         v-model="searchForm.device_id"
-        :placeholder="$t('hiveTasksTS.deviceId')"
+        :placeholder="$t('hiveTasks.deviceId')"
         style="min-width: 120px"
       ></el-input>
     </el-form-item>
-    <el-form-item :label="$t('hiveTasksTS.taskName')">
+    <el-form-item :label="$t('hiveTasks.taskName')">
       <el-select
         v-model="searchForm.task_name"
-        :placeholder="$t('hiveTasksTS.taskName')"
+        :placeholder="$t('hiveTasks.taskName')"
         style="width: 150px"
         clearable
       >
@@ -432,21 +458,25 @@ onMounted(() => {
         <el-option label="Unknown" value="unknown"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item :label="$t('hiveTasksTS.status')">
+    <el-form-item :label="$t('hiveTasks.status')">
       <el-select
         v-model="searchForm.status"
-        :placeholder="$t('hiveTasksTS.status')"
+        :placeholder="$t('hiveTasks.status')"
         style="width: 150px"
         clearable
       >
-        <el-option label="Not Started" :value="0"></el-option>
-        <el-option label="Running" :value="1"></el-option>
-        <el-option label="Finished" :value="2"></el-option>
-        <el-option label="Failed" :value="3"></el-option>
+        <el-option
+          v-for="(value, index) in STATUS_MAP"
+          :key="index"
+          :label="value"
+          :value="index"
+        />
       </el-select>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="searchTasks">{{ $t('form.search') }}</el-button>
+      <el-button type="primary" @click="searchTasks">{{
+        $t('form.search')
+      }}</el-button>
       <el-button @click="resetSearch">{{ $t('form.reset') }}</el-button>
     </el-form-item>
   </el-form>
@@ -456,25 +486,25 @@ onMounted(() => {
     border
   >
     <el-table-column
-      :label="$t('hiveTasksTS.taskId')"
+      :label="$t('hiveTasks.taskId')"
       width="80"
       align="center"
       prop="id"
     ></el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.taskName')"
+      :label="$t('hiveTasks.deviceId')"
       width="120"
       align="center"
       prop="device_id"
     ></el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.taskName')"
+      :label="$t('hiveTasks.taskName')"
       width="150"
       align="center"
       prop="task_name"
     ></el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.taskData')"
+      :label="$t('hiveTasks.taskData')"
       width="120"
       align="center"
       prop="task_data"
@@ -493,24 +523,18 @@ onMounted(() => {
       </template>
     </el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.status')"
-      width="120"
+      :label="$t('hiveTasks.status')"
+      min-width="120"
       align="center"
     >
-      <template #default="scope">
-        <el-tag v-if="scope.row.status === 0" type="info">Not Started</el-tag>
-        <el-tag v-else-if="scope.row.status === 1" type="warning"
-          >Running</el-tag
-        >
-        <el-tag v-else-if="scope.row.status === 2" type="success"
-          >Finished</el-tag
-        >
-        <el-tag v-else-if="scope.row.status === 3" type="danger">Failed</el-tag>
-        <el-tag v-else type="info">Unknown</el-tag>
+      <template #default="{ row }">
+        <el-tag :type="statusTagType(row.status)">{{
+          statusLabel(row.status)
+        }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.result')"
+      :label="$t('hiveTasks.result')"
       min-width="120"
       align="center"
       prop="result"
@@ -521,19 +545,19 @@ onMounted(() => {
       </template>
     </el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.cron_time')"
+      :label="$t('hiveTasks.cron_time')"
       width="120"
       header-align="center"
       prop="cron_time"
     ></el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.finished_time')"
+      :label="$t('hiveTasks.finished_time')"
       width="120"
       align="center"
       prop="finished_time"
     ></el-table-column>
     <el-table-column
-      :label="$t('hiveTasksTS.addtime')"
+      :label="$t('hiveTasks.addtime')"
       width="120"
       align="center"
       prop="addtime"
