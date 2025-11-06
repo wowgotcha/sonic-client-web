@@ -53,7 +53,7 @@ const pageData = ref({});
 const pageSize = ref(15);
 const pageCurrNum = ref(1);
 const updateTask = ref(null);
-const taskForm = ref({
+const defaultTaskForm = {
   id: null,
   device_id: '',
   task_name: '',
@@ -61,10 +61,12 @@ const taskForm = ref({
     app_number: null,
     account_name: '',
     video_path: '',
+    description: '',
   },
   cron_time: null,
-  status: 0, // 0: not started (default)
-});
+  status: 0, // Default to not started
+}
+const taskForm = ref(defaultTaskForm);
 
 const searchForm = ref({
   id: '',
@@ -141,9 +143,10 @@ const getTaskInfo = (id) => {
       device_id: data.device_id,
       task_name: data.task_name,
       task_data: {
-        app_number: null,
+        app_number: 1,
         account_name: '',
         video_path: '',
+        description: '',
       },
       cron_time: data.cron_time,
       status: data.status,
@@ -161,7 +164,7 @@ const getTaskInfo = (id) => {
 // Update task status
 const updateStatus = (id, status) => {
   // Validate status value
-  if (![0, 1, 2, 3].includes(status)) {
+  if (!STATUS_MAP[status]) {
     ElMessage.error({
       message: 'Invalid status value',
     });
@@ -208,18 +211,7 @@ const deleteTask = (id) => {
 
 // Open dialog for creating/editing task
 const openTaskDialog = (id = null) => {
-  taskForm.value = {
-    id: null,
-    device_id: route.params.projectId,
-    task_name: '',
-    task_data: {
-      app_number: null,
-      account_name: '',
-      video_path: '',
-    },
-    cron_time: null,
-    status: 0, // Default to not started
-  };
+  taskForm.value = defaultTaskForm;
   if (id) {
     getTaskInfo(id);
   }
@@ -354,7 +346,7 @@ onMounted(() => {
     >
       <el-form-item
         prop="device_id"
-        label="Device ID"
+        :label="$t('hiveTasks.deviceId')"
         :rules="{
           required: true,
           message: 'Device ID is required',
@@ -368,7 +360,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         prop="task_name"
-        :label="$t('hiveTasks.task_name')"
+        :label="$t('hiveTasks.taskName')"
         :rules="{
           required: true,
           message: $t('jobsTS.dialogVisible.nameIsNull'),
@@ -386,19 +378,23 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         prop="cron_time"
-        :label="$t('jobsTS.dialogVisible.cron')"
+        :label="$t('hiveTasks.cron_time')"
         :rules="{
           required: true,
           message: $t('jobsTS.dialogVisible.cronIsNull'),
           trigger: 'blur',
         }"
       >
-        <el-input
+        <el-date-picker
           v-model="taskForm.cron_time"
-          :placeholder="$t('jobsTS.dialogVisible.inputCron')"
-        ></el-input>
+          type="datetime"
+          :placeholder="$t('hiveTasks.cron_time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="X"
+          style="min-width: 180px"
+        />
       </el-form-item>
-      <el-form-item prop="status" :label="$t('agent.status.name')">
+      <el-form-item prop="status" :label="$t('hiveTasks.status')">
         <el-select
           v-model="taskForm.status"
           :placeholder="$t('hiveTasks.status')"
@@ -407,14 +403,14 @@ onMounted(() => {
             v-for="(value, index) in STATUS_MAP"
             :key="index"
             :label="value"
-            :value="index"
+            :value="Number(index)"
           />
         </el-select>
       </el-form-item>
       <!-- Task Data Fields -->
       <el-form-item
         v-if="taskForm.task_name === 'publish_video'"
-        label="App Number"
+        :label="$t('hiveTasks.app_number')"
         prop="task_data.app_number"
       >
         <el-select
@@ -428,7 +424,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         v-if="taskForm.task_name === 'publish_video'"
-        label="Account Name"
+        :label="$t('hiveTasks.account_name')"
         prop="task_data.account_name"
       >
         <el-input
@@ -438,7 +434,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         v-if="taskForm.task_name === 'publish_video'"
-        label="Video Path"
+        :label="$t('hiveTasks.video_path')"
         prop="task_data.video_path"
         :rules="{
           required: taskForm.task_name === 'publish_video',
@@ -451,6 +447,22 @@ onMounted(() => {
           placeholder="Enter video path"
         ></el-input>
       </el-form-item>
+      <el-form-item
+        v-if="taskForm.task_name === 'publish_video'"
+        :label="$t('hiveTasks.description')"
+        prop="task_data.description"
+        :rules="{
+          required: taskForm.task_name === 'publish_video',
+          message: 'Description is required for publish_video task',
+          trigger: 'blur',
+        }"
+      >
+        <el-input
+          v-model="taskForm.task_data.description"
+          placeholder="Enter Description"
+        ></el-input>
+      </el-form-item>
+
     </el-form>
     <div style="text-align: center">
       <el-button size="small" type="primary" @click="submitTask">{{
@@ -505,7 +517,7 @@ onMounted(() => {
           v-for="(value, index) in STATUS_MAP"
           :key="index"
           :label="value"
-          :value="index"
+          :value="Number(index)"
         />
       </el-select>
     </el-form-item>
