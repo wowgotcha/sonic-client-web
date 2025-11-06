@@ -12,8 +12,8 @@ const route = useRoute();
 const STATUS_MAP = {
   0: $t('hiveTasks.notStarted'),
   1: $t('hiveTasks.running'),
-  2: $t('hiveTasks.finished'),
-  3: $t('hiveTasks.failed'),
+  2: $t('hiveTasks.failed'),
+  3: $t('hiveTasks.finished'),
 };
 const statusTagType = (status) => {
   switch (status) {
@@ -22,9 +22,9 @@ const statusTagType = (status) => {
     case 1:
       return 'warning';
     case 2:
-      return 'success';
-    case 3:
       return 'danger';
+    case 3:
+      return 'success';
     default:
       return 'info';
   }
@@ -157,6 +157,7 @@ const getTaskInfo = (id) => {
       taskForm.value.task_data.app_number = data.task_data.app_number || null;
       taskForm.value.task_data.account_name = data.task_data.account_name || '';
       taskForm.value.task_data.video_path = data.task_data.video_path || '';
+      taskForm.value.task_data.description = data.task_data.description || '';
     }
   });
 };
@@ -230,6 +231,7 @@ const submitTask = () => {
         taskData = {
           app_number: taskForm.value.task_data.app_number,
           video_path: taskForm.value.task_data.video_path,
+          description: taskForm.value.task_data.description,
         };
         // Add account_name only if it's not empty
         if (taskForm.value.task_data.account_name) {
@@ -626,7 +628,7 @@ onMounted(() => {
       prop="result"
     >
       <template #default="scope">
-        <span v-if="scope.row.status === 3">{{ scope.row.result }}</span>
+        <span v-if="scope.row.status === 2">{{ scope.row.result }}</span>
         <span v-else></span>
       </template>
     </el-table-column>
@@ -663,12 +665,6 @@ onMounted(() => {
     <el-table-column :label="$t('common.operate')" width="290" align="center">
       <template #default="scope">
         <el-button
-          type="success"
-          size="mini"
-          @click="updateStatus(scope.row.id, 1)"
-          >{{ $t('jobsTS.run') }}
-        </el-button>
-        <el-button
           type="primary"
           size="mini"
           @click="openTaskDialog(scope.row.id)"
@@ -680,7 +676,7 @@ onMounted(() => {
           :cancel-button-text="$t('form.cancel')"
           icon="el-icon-warning"
           icon-color="red"
-          :title="$t('jobsTS.del')"
+          :title="$t('hiveTasks.del')"
           @confirm="deleteTask(scope.row.id)"
         >
           <template #reference>

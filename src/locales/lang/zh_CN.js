@@ -1657,6 +1657,10 @@ const hiveTasks = {
   running: '运行中',
   finished: '已完成',
   failed: '失败',
+  app_number: '抖音应用双开',
+  account_name: '抖音号',
+  video_path: '视频链接',
+  description: '视频描述',
 };
 export default {
   message: {
