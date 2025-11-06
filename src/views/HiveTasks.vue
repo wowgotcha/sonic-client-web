@@ -74,6 +74,8 @@ const defaultTaskForm = {
   },
   cron_time: null,
   status: 0, // Default to not started
+  run_count: 0, // Default to 0
+  max_run_count: 3, // Default to 3
 };
 const taskForm = ref(defaultTaskForm);
 
@@ -194,6 +196,8 @@ const getTaskInfo = (id) => {
       },
       cron_time: data.cron_time,
       status: data.status,
+      run_count: data.run_count || 0,
+      max_run_count: data.max_run_count || 3,
     };
 
     // Populate task_data fields based on task_name
@@ -297,6 +301,7 @@ const submitTask = () => {
           device_id: taskForm.value.device_id,
           task_name: taskForm.value.task_name,
           cron_time: taskForm.value.cron_time,
+          max_run_count: taskForm.value.max_run_count,
         };
 
         // Add task_data only if it's not null
@@ -321,6 +326,7 @@ const submitTask = () => {
           task_name: taskForm.value.task_name,
           cron_time: taskForm.value.cron_time,
           status: taskForm.value.status,
+          max_run_count: taskForm.value.max_run_count,
         };
 
         // Add task_data only if it's not null
@@ -469,6 +475,22 @@ onMounted(() => {
             :value="Number(index)"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item prop="run_count" :label="$t('hiveTasks.runCount')">
+        <el-input
+          v-model="taskForm.run_count"
+          :readonly="true"
+          placeholder="0"
+        ></el-input>
+      </el-form-item>
+      <el-form-item prop="max_run_count" :label="$t('hiveTasks.maxRunCount')">
+        <el-input-number
+          v-model="taskForm.max_run_count"
+          :min="0"
+          :max="100"
+          :step="1"
+          :placeholder="3"
+        ></el-input-number>
       </el-form-item>
       <!-- Task Data Fields -->
       <el-form-item
@@ -700,6 +722,9 @@ onMounted(() => {
         <el-tag :type="statusTagType(row.status)">{{
           statusLabel(row.status)
         }}</el-tag>
+        <div v-if="row.run_count !== undefined && row.max_run_count !== undefined">
+          ({{ row.run_count }}/{{ row.max_run_count }})
+        </div>
       </template>
     </el-table-column>
     <el-table-column
