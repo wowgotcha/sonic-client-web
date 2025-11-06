@@ -371,6 +371,8 @@ const form = {
   confirm: '确定',
   cancel: '取消',
   test: '测试',
+  search: '搜索',
+  reset: '重置',
 };
 // 弹窗相关
 const dialog = {
@@ -1639,6 +1641,24 @@ const stepDetail = {
   wait: '等待',
   WebviewName: 'webview名称',
 };
+const hiveTasksTS = {
+  dialogVisible: {
+  },
+  taskId: '任务id',
+  taskName: '任务名称',
+  deviceId: '设备序列号',
+  taskData: '任务数据',
+  status: '状态',
+  result: '错误信息',
+  cron_time: '定时时间',
+  finished_time: '结束时间',
+  addtime: '新增时间',
+  del: '确定删除该定时任务吗？',
+  notStarted: '未开始',
+  running: '运行中',
+  finished: '已完成',
+  failed: '失败',
+}
 export default {
   message: {
     robot,
@@ -1684,5 +1704,6 @@ export default {
     suite,
     element,
     stepDetail,
+    hiveTasksTS,
   },
 };

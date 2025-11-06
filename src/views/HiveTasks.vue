@@ -9,6 +9,12 @@ import Pageable from '../components/Pageable.vue';
 const { t: $t } = useI18n();
 
 const route = useRoute();
+const STATUS_MAP = {
+  0: $t('hiveTasksTs.notStarted'),
+  1: $t('hiveTasksTs.running'),
+  2: $t('hiveTasksTs.finished'),
+  3: $t('hiveTasksTs.failed'),
+}
 const dialogVisible = ref(false);
 const pageData = ref({});
 const pageSize = ref(15);
@@ -272,7 +278,7 @@ onMounted(() => {
 
 <template>
   <!-- Task Data Dialog -->
-  <el-dialog v-model="taskDataDialog" title="Task Data" width="600px">
+  <el-dialog v-model="taskDataDialog" :title="$t('hiveTasksTS.taskData')" width="600px">
     <pre>{{ JSON.stringify(currentTaskData, null, 2) }}</pre>
   </el-dialog>
 
@@ -305,7 +311,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item
         prop="task_name"
-        :label="$t('jobsTS.dialogVisible.name')"
+        :label="$t('hiveTasksTs.dialogVisible.task_name')"
         :rules="{
           required: true,
           message: $t('jobsTS.dialogVisible.nameIsNull'),
@@ -401,36 +407,36 @@ onMounted(() => {
     class="demo-form-inline"
     style="margin-top: 20px"
   >
-    <el-form-item label="Task ID">
+    <el-form-item :label="$t('hiveTasksTS.taskId')">
       <el-input
         v-model="searchForm.id"
-        placeholder="Task ID"
+        :placeholder="$t('hiveTasksTS.taskId')"
         style="width: 120px"
       ></el-input>
     </el-form-item>
-    <el-form-item label="Device ID">
+    <el-form-item :label="$t('hiveTasksTS.deviceId')">
       <el-input
         v-model="searchForm.device_id"
-        placeholder="Device ID"
-        style="width: 120px"
+        :placeholder="$t('hiveTasksTS.deviceId')"
+        style="min-width: 120px"
       ></el-input>
     </el-form-item>
-    <el-form-item label="Task Name">
+    <el-form-item :label="$t('hiveTasksTS.taskName')">
       <el-select
         v-model="searchForm.task_name"
-        placeholder="Task Name"
-        style="width: 120px"
+        :placeholder="$t('hiveTasksTS.taskName')"
+        style="width: 150px"
         clearable
       >
         <el-option label="Publish Video" value="publish_video"></el-option>
         <el-option label="Unknown" value="unknown"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="Status">
+    <el-form-item :label="$t('hiveTasksTS.status')">
       <el-select
         v-model="searchForm.status"
-        placeholder="Status"
-        style="width: 120px"
+        :placeholder="$t('hiveTasksTS.status')"
+        style="width: 150px"
         clearable
       >
         <el-option label="Not Started" :value="0"></el-option>
@@ -440,8 +446,8 @@ onMounted(() => {
       </el-select>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="searchTasks">Search</el-button>
-      <el-button @click="resetSearch">Reset</el-button>
+      <el-button type="primary" @click="searchTasks">{{ $t('form.search') }}</el-button>
+      <el-button @click="resetSearch">{{ $t('form.reset') }}</el-button>
     </el-form-item>
   </el-form>
   <el-table
@@ -450,25 +456,25 @@ onMounted(() => {
     border
   >
     <el-table-column
-      :label="$t('jobsTS.taskId')"
+      :label="$t('hiveTasksTS.taskId')"
       width="80"
       align="center"
       prop="id"
     ></el-table-column>
     <el-table-column
-      label="Device ID"
+      :label="$t('hiveTasksTS.taskName')"
       width="120"
       align="center"
       prop="device_id"
     ></el-table-column>
     <el-table-column
-      :label="$t('jobsTS.dialogVisible.name')"
+      :label="$t('hiveTasksTS.taskName')"
       width="150"
       align="center"
       prop="task_name"
     ></el-table-column>
     <el-table-column
-      label="Task Data"
+      :label="$t('hiveTasksTS.taskData')"
       width="120"
       align="center"
       prop="task_data"
@@ -487,7 +493,7 @@ onMounted(() => {
       </template>
     </el-table-column>
     <el-table-column
-      :label="$t('agent.status.name')"
+      :label="$t('hiveTasksTS.status')"
       width="120"
       align="center"
     >
@@ -504,25 +510,30 @@ onMounted(() => {
       </template>
     </el-table-column>
     <el-table-column
-      label="Result"
-      width="120"
+      :label="$t('hiveTasksTS.result')"
+      min-width="120"
       align="center"
       prop="result"
-    ></el-table-column>
+    >
+      <template #default="scope">
+        <span v-if="scope.row.status === 3">{{ scope.row.result }}</span>
+        <span v-else></span>
+      </template>
+    </el-table-column>
     <el-table-column
-      :label="$t('jobsTS.dialogVisible.cron')"
+      :label="$t('hiveTasksTS.cron_time')"
       width="120"
       header-align="center"
       prop="cron_time"
     ></el-table-column>
     <el-table-column
-      label="Finished Time"
+      :label="$t('hiveTasksTS.finished_time')"
       width="120"
       align="center"
       prop="finished_time"
     ></el-table-column>
     <el-table-column
-      label="Add Time"
+      :label="$t('hiveTasksTS.addtime')"
       width="120"
       align="center"
       prop="addtime"
