@@ -23,7 +23,8 @@ import { router } from '../router/index.js';
 
 let baseURL = '';
 if (process.env.NODE_ENV === 'development') {
-  baseURL = 'http://localhost:3000/server/api';
+  // baseURL = 'http://localhost:3000/server/api';
+  baseURL = '/server/api';
 }
 if (process.env.NODE_ENV === 'production') {
   baseURL = '/server/api';
@@ -97,4 +98,83 @@ $http.interceptors.response.use(
   }
 );
 
+// Create a separate axios instance for Hive API
+let hiveBaseURL = '';
+if (process.env.VUE_APP_HIVE_API_BASE_URL) {
+  hiveBaseURL = env.VUE_APP_HIVE_API_BASE_URL;
+} else {
+  hiveBaseURL = '/api/v1';
+}
+const token = process.env.VUE_APP_HIVE_API_TOKEN;
+const $hiveHttp = axios.create();
+$hiveHttp.defaults.baseURL = hiveBaseURL;
+$hiveHttp.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+$hiveHttp.defaults.withCredentials = true;
+$hiveHttp.defaults.paramsSerializer = (params) =>
+  qs.stringify(params, { arrayFormat: 'brackets' });
+
+$hiveHttp.interceptors.request.use(
+  (config) => {
+    config.headers = {
+      'Content-Type': 'application/json',
+      'Accept-Language': i18n.global.locale.value,
+    };
+    if (localStorage.getItem('SonicToken')) {
+      config.headers.SonicToken = localStorage.getItem('SonicToken');
+    }
+    config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (err) => {
+    return Promise.reject(err);
+  }
+);
+
+$hiveHttp.interceptors.response.use(
+  (response) => {
+    // todo check correct code
+    switch (response.data.code) {
+      case 0:
+        // success
+        break;
+      case 1001:
+        if (router.currentRoute.value.path !== '/Login') {
+          router
+            .replace({
+              path: '/Login',
+              query: { redirect: router.currentRoute.value.path },
+            })
+            .catch((err) => {});
+        }
+        localStorage.removeItem('SonicToken');
+        break;
+      case 1003:
+        ElMessage.error({
+          message: $tc('dialog.permissionDenied'),
+        });
+        break;
+      default:
+        if (response.data.message) {
+          ElMessage.error({
+            message: response.data.message,
+          });
+        }
+    }
+    return response.data;
+  },
+  (err) => {
+    if (err.response.status === 503) {
+      ElMessage.info({
+        message: $tc('dialog.ready'),
+      });
+    } else {
+      ElMessage.error({
+        message: $tc('dialog.error'),
+      });
+    }
+    return Promise.reject(err);
+  }
+);
+
 export default $http;
+export { $hiveHttp };

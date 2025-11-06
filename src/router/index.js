@@ -165,6 +165,12 @@ const getRoutes = () => [
         component: () => import('../views/Packages.vue'),
         meta: { title: $tc('routes.projectPage') },
       },
+      {
+        path: 'HiveTasks',
+        name: 'HiveTasks',
+        component: () => import('../views/HiveTasks.vue'),
+        meta: { title: $tc('routes.hiveTasks') },
+      },
     ],
   },
   {

@@ -53,6 +53,10 @@ onMounted(() => {
           <i class="el-icon-data-analysis"></i>
           <template #title>{{ $t('homeTS.projectOverview') }}</template>
         </el-menu-item>
+        <el-menu-item :index="'/Home/' + route.params.projectId + '/HiveTasks'">
+          <i class="el-icon-time"></i>
+          <template #title>{{ $t('homeTS.cronTasks') }}</template>
+        </el-menu-item>
 
         <el-sub-menu index="2">
           <template #title>

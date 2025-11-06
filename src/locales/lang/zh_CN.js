@@ -432,6 +432,7 @@ const routes = {
   scripts: '脚本模板',
   projectAlertRobots: '通知机器人',
   sysAlertRobots: '通知机器人',
+  hiveTasks: '群控定时任务',
 };
 const setting = {
   title: '后台管理中心',
@@ -487,6 +488,7 @@ const globalParamsTs = {
 };
 const homeTS = {
   projectOverview: '项目概况',
+  cronTasks: '定时任务',
   testCaseManagement: '测试用例管理',
   testCase: {
     case: '测试用例',
