@@ -55,6 +55,7 @@ const pageCurrNum = ref(1);
 const updateTask = ref(null);
 const defaultTaskForm = {
   id: null,
+  device_label: '',
   device_id: '',
   task_name: '',
   task_data: {
@@ -65,7 +66,7 @@ const defaultTaskForm = {
   },
   cron_time: null,
   status: 0, // Default to not started
-}
+};
 const taskForm = ref(defaultTaskForm);
 
 const searchForm = ref({
@@ -137,9 +138,10 @@ const getTaskList = (pageNum, pSize) => {
 // Get task info for editing
 const getTaskInfo = (id) => {
   axios.get(`/devices/tasks`, { params: { id } }).then((resp) => {
-    const data = resp.data.tasks || resp.data.tasks[0];
+    const data = resp.data.tasks && resp.data.tasks[0];
     taskForm.value = {
       id: data.id,
+      device_label: data.device_label || '',
       device_id: data.device_id,
       task_name: data.task_name,
       task_data: {
@@ -188,7 +190,7 @@ const updateStatus = (id, status) => {
 
 // Delete task
 const deleteTask = (id) => {
-  ElMessageBox.confirm($t('jobsTS.del'), $t('dialog.confirm'), {
+  ElMessageBox.confirm($t('hiveTasks.del'), $t('dialog.confirm'), {
     confirmButtonText: $t('form.confirm'),
     cancelButtonText: $t('form.cancel'),
     type: 'warning',
@@ -241,13 +243,14 @@ const submitTask = () => {
         // For unknown tasks, task_data should be null
         taskData = null;
       } else {
-        // For other task types, use the task_data as is
-        taskData = taskForm.value.task_data;
+        // For unknown tasks, task_data should be null
+        taskData = null;
       }
 
       // For creating new tasks
       if (!taskForm.value.id) {
         const requestData = {
+          device_label: taskForm.value.device_label,
           device_id: taskForm.value.device_id,
           task_name: taskForm.value.task_name,
           cron_time: taskForm.value.cron_time,
@@ -270,6 +273,7 @@ const submitTask = () => {
       } else {
         // For updating existing tasks
         const requestData = {
+          device_label: taskForm.value.device_label,
           device_id: taskForm.value.device_id,
           task_name: taskForm.value.task_name,
           cron_time: taskForm.value.cron_time,
@@ -346,6 +350,20 @@ onMounted(() => {
       label-width="120px"
       label-position="left"
     >
+      <el-form-item
+        prop="device_label"
+        :label="$t('hiveTasks.deviceLabel')"
+        :rules="{
+          required: true,
+          message: 'Device label is required',
+          trigger: 'blur',
+        }"
+      >
+        <el-input
+          v-model="taskForm.device_label"
+          placeholder="Enter device label"
+        ></el-input>
+      </el-form-item>
       <el-form-item
         prop="device_id"
         :label="$t('hiveTasks.deviceId')"
@@ -464,7 +482,6 @@ onMounted(() => {
           placeholder="Enter Description"
         ></el-input>
       </el-form-item>
-
     </el-form>
     <div style="text-align: center">
       <el-button size="small" type="primary" @click="submitTask">{{
@@ -527,38 +544,38 @@ onMounted(() => {
       <el-date-picker
         v-model="searchForm.cron_time_start"
         type="datetime"
-        :placeholder="$t('hiveTasks.cron_time') + ' ' + $t('stepDetail.start')"
+        :placeholder="$t('hiveTasks.cron_time')"
         format="YYYY-MM-DD HH:mm:ss"
         value-format="YYYY-MM-DD HH:mm:ss"
-        style="width: 180px"
+        style="min-width: 180px"
       />
       <span> - </span>
       <el-date-picker
         v-model="searchForm.cron_time_end"
         type="datetime"
-        :placeholder="$t('hiveTasks.cron_time') + ' ' + $t('stepDetail.end')"
+        :placeholder="$t('hiveTasks.cron_time')"
         format="YYYY-MM-DD HH:mm:ss"
         value-format="YYYY-MM-DD HH:mm:ss"
-        style="width: 180px"
+        style="min-width: 180px"
       />
     </el-form-item>
     <el-form-item :label="$t('hiveTasks.addtime')">
       <el-date-picker
         v-model="searchForm.addtime_start"
         type="datetime"
-        :placeholder="$t('hiveTasks.addtime') + ' ' + $t('stepDetail.start')"
+        :placeholder="$t('hiveTasks.addtime')"
         format="YYYY-MM-DD HH:mm:ss"
         value-format="YYYY-MM-DD HH:mm:ss"
-        style="width: 180px"
+        style="min-width: 180px"
       />
       <span> - </span>
       <el-date-picker
         v-model="searchForm.addtime_end"
         type="datetime"
-        :placeholder="$t('hiveTasks.addtime') + ' ' + $t('stepDetail.end')"
+        :placeholder="$t('hiveTasks.addtime')"
         format="YYYY-MM-DD HH:mm:ss"
         value-format="YYYY-MM-DD HH:mm:ss"
-        style="width: 180px"
+        style="min-width: 180px"
       />
     </el-form-item>
     <el-form-item>
@@ -578,6 +595,12 @@ onMounted(() => {
       width="80"
       align="center"
       prop="id"
+    ></el-table-column>
+    <el-table-column
+      :label="$t('hiveTasks.deviceLabel')"
+      width="120"
+      align="center"
+      prop="device_label"
     ></el-table-column>
     <el-table-column
       :label="$t('hiveTasks.deviceId')"
