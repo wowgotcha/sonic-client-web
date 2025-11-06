@@ -53,6 +53,7 @@ const pageData = ref({});
 const pageSize = ref(15);
 const pageCurrNum = ref(1);
 const updateTask = ref(null);
+const isEditMode = ref(false);
 const defaultTaskForm = {
   id: null,
   device_label: '',
@@ -69,16 +70,18 @@ const defaultTaskForm = {
 };
 const taskForm = ref(defaultTaskForm);
 
-const searchForm = ref({
+const defaultSearchForm = {
   id: '',
   device_id: '',
+  device_label: '',
   task_name: '',
   status: null,
   cron_time_start: '',
   cron_time_end: '',
   addtime_start: '',
   addtime_end: '',
-});
+};
+const searchForm = ref({...defaultSearchForm});
 const taskDataDialog = ref(false);
 const currentTaskData = ref({});
 
@@ -130,6 +133,9 @@ const getTaskList = (pageNum, pSize) => {
   }
   if (searchForm.value.device_id) {
     params.device_id = searchForm.value.device_id;
+  }
+  if (searchForm.value.device_label) {
+    params.device_label = searchForm.value.device_label;
   }
   if (searchForm.value.task_name) {
     params.task_name = searchForm.value.task_name;
@@ -244,6 +250,7 @@ const deleteTask = (id) => {
 // Open dialog for creating/editing task
 const openTaskDialog = (id = null) => {
   taskForm.value = defaultTaskForm;
+  isEditMode.value = !!id;
   if (id) {
     getTaskInfo(id);
   }
@@ -338,16 +345,7 @@ const searchTasks = () => {
 
 // Reset search form
 const resetSearch = () => {
-  searchForm.value = {
-    id: '',
-    device_id: '',
-    task_name: '',
-    status: null,
-    cron_time_start: '',
-    cron_time_end: '',
-    addtime_start: '',
-    addtime_end: '',
-  };
+  searchForm.value = {...defaultSearchForm};
   searchTasks();
 };
 
@@ -390,8 +388,10 @@ onMounted(() => {
       >
         <el-input
           v-model="taskForm.device_label"
+          :readonly="isEditMode"
           placeholder="Enter device label"
-          @blur="fetchDeviceUDID(taskForm.device_label)"
+          :disabled="isEditMode"
+          @blur="!isEditMode && fetchDeviceUDID(taskForm.device_label)"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -405,7 +405,9 @@ onMounted(() => {
       >
         <el-input
           v-model="taskForm.device_id"
+          :readonly="isEditMode"
           placeholder="Enter device ID"
+          :disabled="isEditMode"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -535,6 +537,13 @@ onMounted(() => {
         v-model="searchForm.id"
         :placeholder="$t('hiveTasks.taskId')"
         style="width: 120px"
+      ></el-input>
+    </el-form-item>
+    <el-form-item :label="$t('hiveTasks.deviceLabel')">
+      <el-input
+        v-model="searchForm.device_label"
+        :placeholder="$t('hiveTasks.deviceLabel')"
+        style="min-width: 120px"
       ></el-input>
     </el-form-item>
     <el-form-item :label="$t('hiveTasks.deviceId')">
