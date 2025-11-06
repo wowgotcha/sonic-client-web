@@ -32,6 +32,22 @@ const statusTagType = (status) => {
 const statusLabel = (status) => {
   return STATUS_MAP[status] || 'Unknown';
 };
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp * 1000); // Convert Unix timestamp to milliseconds
+  return date
+    .toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+    .replace(/\//g, '-');
+};
 const dialogVisible = ref(false);
 const pageData = ref({});
 const pageSize = ref(15);
@@ -55,6 +71,10 @@ const searchForm = ref({
   device_id: '',
   task_name: '',
   status: null,
+  cron_time_start: '',
+  cron_time_end: '',
+  addtime_start: '',
+  addtime_end: '',
 });
 const taskDataDialog = ref(false);
 const currentTaskData = ref({});
@@ -84,6 +104,18 @@ const getTaskList = (pageNum, pSize) => {
   }
   if (searchForm.value.status !== null && searchForm.value.status !== '') {
     params.status = searchForm.value.status;
+  }
+  if (searchForm.value.cron_time_start) {
+    params.cron_time_start = searchForm.value.cron_time_start;
+  }
+  if (searchForm.value.cron_time_end) {
+    params.cron_time_end = searchForm.value.cron_time_end;
+  }
+  if (searchForm.value.addtime_start) {
+    params.addtime_start = searchForm.value.addtime_start;
+  }
+  if (searchForm.value.addtime_end) {
+    params.addtime_end = searchForm.value.addtime_end;
   }
   // Use correct API endpoint
   axios
@@ -284,6 +316,10 @@ const resetSearch = () => {
     device_id: '',
     task_name: '',
     status: null,
+    cron_time_start: '',
+    cron_time_end: '',
+    addtime_start: '',
+    addtime_end: '',
   };
   searchTasks();
 };
@@ -473,6 +509,44 @@ onMounted(() => {
         />
       </el-select>
     </el-form-item>
+    <el-form-item :label="$t('hiveTasks.cron_time')">
+      <el-date-picker
+        v-model="searchForm.cron_time_start"
+        type="datetime"
+        :placeholder="$t('hiveTasks.cron_time') + ' ' + $t('stepDetail.start')"
+        format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
+        style="width: 180px"
+      />
+      <span> - </span>
+      <el-date-picker
+        v-model="searchForm.cron_time_end"
+        type="datetime"
+        :placeholder="$t('hiveTasks.cron_time') + ' ' + $t('stepDetail.end')"
+        format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
+        style="width: 180px"
+      />
+    </el-form-item>
+    <el-form-item :label="$t('hiveTasks.addtime')">
+      <el-date-picker
+        v-model="searchForm.addtime_start"
+        type="datetime"
+        :placeholder="$t('hiveTasks.addtime') + ' ' + $t('stepDetail.start')"
+        format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
+        style="width: 180px"
+      />
+      <span> - </span>
+      <el-date-picker
+        v-model="searchForm.addtime_end"
+        type="datetime"
+        :placeholder="$t('hiveTasks.addtime') + ' ' + $t('stepDetail.end')"
+        format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
+        style="width: 180px"
+      />
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="searchTasks">{{
         $t('form.search')
@@ -546,22 +620,34 @@ onMounted(() => {
     </el-table-column>
     <el-table-column
       :label="$t('hiveTasks.cron_time')"
-      width="120"
-      header-align="center"
+      min-width="100"
+      align="center"
       prop="cron_time"
-    ></el-table-column>
+    >
+      <template #default="scope">
+        {{ formatTimestamp(scope.row.cron_time) }}
+      </template>
+    </el-table-column>
     <el-table-column
       :label="$t('hiveTasks.finished_time')"
-      width="120"
+      min-width="100"
       align="center"
       prop="finished_time"
-    ></el-table-column>
+    >
+      <template #default="scope">
+        {{ formatTimestamp(scope.row.finished_time) }}
+      </template>
+    </el-table-column>
     <el-table-column
       :label="$t('hiveTasks.addtime')"
-      width="120"
+      min-width="100"
       align="center"
       prop="addtime"
-    ></el-table-column>
+    >
+      <template #default="scope">
+        {{ formatTimestamp(scope.row.addtime) }}
+      </template>
+    </el-table-column>
     <el-table-column :label="$t('common.operate')" width="290" align="center">
       <template #default="scope">
         <el-button
