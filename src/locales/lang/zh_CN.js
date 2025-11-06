@@ -1664,6 +1664,8 @@ const hiveTasks = {
   description: '视频描述',
   publishVideo: '发布视频',
   unknown: '未知任务',
+  runCount: '运行次数',
+  maxRunCount: '最大运行次数',
 };
 export default {
   message: {

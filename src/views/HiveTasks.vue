@@ -197,7 +197,7 @@ const getTaskInfo = (id) => {
       cron_time: data.cron_time,
       status: data.status,
       run_count: data.run_count || 0,
-      max_run_count: data.max_run_count || 3,
+      max_run_count: Number.isInteger(data.max_run_count) ? data.max_run_count : 3,
     };
 
     // Populate task_data fields based on task_name
@@ -564,6 +564,7 @@ onMounted(() => {
     :model="searchForm"
     class="demo-form-inline"
     style="margin-top: 20px"
+    @keyup.enter="searchTasks"
   >
     <el-form-item :label="$t('hiveTasks.taskId')">
       <el-input
@@ -723,7 +724,7 @@ onMounted(() => {
           statusLabel(row.status)
         }}</el-tag>
         <div v-if="row.run_count !== undefined && row.max_run_count !== undefined">
-          ({{ row.run_count }}/{{ row.max_run_count }})
+          ({{ row.run_count }}/{{ row.run_count > row.max_run_count ? row.run_count : row.max_run_count }})
         </div>
       </template>
     </el-table-column>
