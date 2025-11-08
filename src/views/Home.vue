@@ -16,6 +16,9 @@ onMounted(() => {
     store.commit('autoChangeCollapse');
   }
 });
+const openTab = (url) => {
+  window.open(url, '_blank', 'noopener,noreferrer');  
+}
 </script>
 
 <template>
@@ -57,7 +60,24 @@ onMounted(() => {
           <i class="el-icon-time"></i>
           <template #title>{{ $t('homeTS.cronTasks') }}</template>
         </el-menu-item>
-
+        <el-sub-menu index="8">
+          <template #title>
+            <i class="el-icon-s-grid"></i>
+            <span>{{ $t('homeTS.cozeAI') }}</span>
+          </template>
+          <el-menu-item
+            index=""
+            @click="openTab('/coze/app_mixed_video.html')"
+          >
+            <i class="el-icon-document-copy"></i>{{ $t('homeTS.cozeAISub.mixedVideo') }}
+          </el-menu-item>
+          <el-menu-item
+            index=""
+            @click="openTab('/coze/app_script_voice.html')"
+          >
+            <i class="el-icon-document-copy"></i>{{ $t('homeTS.cozeAISub.scriptVoice') }}
+          </el-menu-item>
+        </el-sub-menu>
         <el-sub-menu index="2">
           <template #title>
             <i class="el-icon-folder-opened"></i>

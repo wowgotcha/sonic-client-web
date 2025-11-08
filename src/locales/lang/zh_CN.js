@@ -511,6 +511,11 @@ const homeTS = {
     mange: '模块管理',
     update: '版本迭代',
   },
+  cozeAI: '扣子空间',
+  cozeAISub: {
+    mixedVideo: '混剪',
+    scriptVoice: '配音',
+  }
 };
 const jobsTS = {
   dialogVisible: {
