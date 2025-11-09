@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { default as sonicAxios, $hiveHttp as axios } from '../http/axios';
@@ -8,7 +8,7 @@ import Pageable from '../components/Pageable.vue';
 
 const { t: $t } = useI18n();
 
-const route = useRoute();
+const router = useRouter();
 const STATUS_MAP = {
   0: $t('hiveTasks.notStarted'),
   1: $t('hiveTasks.running'),
@@ -94,33 +94,72 @@ const searchForm = ref({...defaultSearchForm});
 const taskDataDialog = ref(false);
 const currentTaskData = ref({});
 
+const fetchDeviceInfo = (label) => {
+  if (label) {
+    return new Promise((resolve, reject) => {
+      // Call API to get device UDID
+      sonicAxios
+        .get('/controller/devices/list', {
+          params: {
+            deviceInfo: label,
+            page: 1,
+            pageSize: 1,
+          },
+        })
+        .then((resp) => {
+          if (
+            resp.code === 2000 &&
+            resp.data &&
+            resp.data.content &&
+            resp.data.content.length > 0
+          ) {
+            resolve(resp.data.content[0]);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to fetch device Info:', error);
+          reject(error);
+        });
+    })
+  }
+};
+
 // Function to fetch device UDID when device_label loses focus
 const fetchDeviceUDID = (label) => {
   if (label) {
     // Call API to get device UDID
-    sonicAxios
-      .get('/controller/devices/list', {
-        params: {
-          deviceInfo: label,
-          page: 1,
-          pageSize: 1,
-        },
-      })
-      .then((resp) => {
-        if (
-          resp.code === 2000 &&
-          resp.data &&
-          resp.data.content &&
-          resp.data.content.length > 0
-        ) {
-          // Set device_id to the first device's UDID
-          taskForm.value.device_id = resp.data.content[0].udId || '';
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to fetch device UDID:', error);
+    fetchDeviceInfo(label)
+      .then((data) => {
+        // Set device_id to the first device's UDID
+        taskForm.value.device_id = data.udId || '';
       });
   }
+};
+
+const handleDeviceLabelClick = (label) => {
+  if (label) {
+    fetchDeviceInfo(label)
+      .then((data) => {
+        jump(data.id, data.platform);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch device info:', error);
+      });
+  }
+};
+
+const jump = (id, platform) => {
+  let routeData;
+  if (platform === 1) {
+    routeData = router.resolve({
+      path: `/AndroidRemote/${id}`,
+    });
+  } else {
+    routeData = router.resolve({
+      path: `/IOSRemote/${id}`,
+    });
+  }
+  window.open(routeData.href, '_blank');
 };
 
 // Function to show task data in a dialog
@@ -678,7 +717,14 @@ onMounted(() => {
       width="120"
       align="center"
       prop="device_label"
-    ></el-table-column>
+    >
+      <template #default="{ row }">
+        <span v-if="row.device_label" @click="handleDeviceLabelClick(row.device_label)" style="cursor: pointer; position: relative;">
+          {{ row.device_label }}
+          <i class="el-icon-arrow-up" style="margin-left: 5px;"></i>
+        </span>
+      </template>
+    </el-table-column>
     <el-table-column
       :label="$t('hiveTasks.deviceId')"
       width="120"
