@@ -94,34 +94,49 @@ const searchForm = ref({...defaultSearchForm});
 const taskDataDialog = ref(false);
 const currentTaskData = ref({});
 
+// Device info cache
+const deviceInfoCache = new Map();
+
 const fetchDeviceInfo = (label) => {
-  if (label) {
-    return new Promise((resolve, reject) => {
-      // Call API to get device UDID
-      sonicAxios
-        .get('/controller/devices/list', {
-          params: {
-            deviceInfo: label,
-            page: 1,
-            pageSize: 1,
-          },
-        })
-        .then((resp) => {
-          if (
-            resp.code === 2000 &&
-            resp.data &&
-            resp.data.content &&
-            resp.data.content.length > 0
-          ) {
-            resolve(resp.data.content[0]);
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to fetch device Info:', error);
-          reject(error);
-        });
-    })
+  if (!label) {
+    return Promise.reject(new Error('Device label is empty'));
   }
+
+  // Return cached data if exists
+  if (deviceInfoCache.has(label)) {
+    return Promise.resolve(deviceInfoCache.get(label));
+  }
+
+  return new Promise((resolve, reject) => {
+    // Call API to get device UDID
+    sonicAxios
+      .get('/controller/devices/list', {
+        params: {
+          deviceInfo: label,
+          page: 1,
+          pageSize: 1,
+        },
+      })
+      .then((resp) => {
+        if (
+          resp.code === 2000 &&
+          resp.data &&
+          resp.data.content &&
+          resp.data.content.length > 0
+        ) {
+          const deviceInfo = resp.data.content[0];
+          // Cache the device info
+          deviceInfoCache.set(label, deviceInfo);
+          resolve(deviceInfo);
+        } else {
+          reject(new Error('Device not found'));
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch device Info:', error);
+        reject(error);
+      });
+  });
 };
 
 // Function to fetch device UDID when device_label loses focus
